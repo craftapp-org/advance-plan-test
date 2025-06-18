@@ -1,50 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { FiMail, FiLock, FiLoader, FiAlertCircle } from "react-icons/fi";
 import { useAuth } from "@/hooks/useAuth";
-import { LoginData } from "@/types";
-import { isValidEmail } from "@/lib/utils";
+import { FiEye, FiEyeOff, FiMail, FiLock, FiLogIn } from "react-icons/fi";
 
-const LoginForm = () => {
-  const router = useRouter();
-  const { login, error, isLoading } = useAuth();
-
-  const [formData, setFormData] = useState<LoginData>({
+export default function LoginForm() {
+  const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
-  const [formErrors, setFormErrors] = useState({
-    email: "",
-    password: "",
-  });
-
-  const validateForm = (): boolean => {
-    let valid = true;
-    const errors = {
-      email: "",
-      password: "",
-    };
-
-    if (!formData.email) {
-      errors.email = "Email is required";
-      valid = false;
-    } else if (!isValidEmail(formData.email)) {
-      errors.email = "Please enter a valid email address";
-      valid = false;
-    }
-
-    if (!formData.password) {
-      errors.password = "Password is required";
-      valid = false;
-    }
-
-    setFormErrors(errors);
-    return valid;
-  };
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const { login, isLoading } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -52,146 +19,153 @@ const LoginForm = () => {
       ...prev,
       [name]: value,
     }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
 
-    if (!validateForm()) return;
-
-    const success = await login(formData);
-
-    if (success) {
-      router.push("/dashboard");
+    try {
+      await login(formData);
+    } catch (error) {
+      console.error("Login failed:", error);
     }
   };
 
   return (
-    <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
-        <p className="mt-2 text-sm text-gray-600">Sign in to your account</p>
+    <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-blue-200">
+      <div className="text-center mb-8">
+        <div className="mx-auto w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mb-4">
+          <FiLogIn className="w-6 h-6 text-white" />
+        </div>
+        <h2 className="text-2xl font-bold text-blue-900 mb-2">Welcome Back</h2>
+        <p className="text-blue-600">Sign in to your account</p>
       </div>
 
-      {error && (
-        <div className="p-3 bg-red-50 text-red-600 rounded-md flex items-center">
-          <FiAlertCircle className="mr-2 flex-shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Email address
+          <label htmlFor="email" className="block text-sm font-medium text-blue-800 mb-2">
+            Email Address
           </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FiMail className="h-5 w-5 text-gray-400" />
-            </div>
+            <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500 w-5 h-5" />
             <input
+              type="email"
               id="email"
               name="email"
-              type="email"
-              autoComplete="email"
               value={formData.email}
               onChange={handleChange}
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="you@example.com"
+              className="w-full pl-10 pr-4 py-3 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-blue-50/50 text-blue-900 placeholder-blue-400 transition-all duration-300"
+              placeholder="Enter your email"
+              required
             />
           </div>
-          {formErrors.email && (
-            <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
+          {errors.email && (
+            <p className="mt-1 text-sm text-red-600">{errors.email}</p>
           )}
         </div>
 
         <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
+          <label htmlFor="password" className="block text-sm font-medium text-blue-800 mb-2">
             Password
           </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FiLock className="h-5 w-5 text-gray-400" />
-            </div>
+            <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500 w-5 h-5" />
             <input
+              type={showPassword ? "text" : "password"}
               id="password"
               name="password"
-              type="password"
-              autoComplete="current-password"
               value={formData.password}
               onChange={handleChange}
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="••••••••"
+              className="w-full pl-10 pr-12 py-3 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-blue-50/50 text-blue-900 placeholder-blue-400 transition-all duration-300"
+              placeholder="Enter your password"
+              required
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-500 hover:text-blue-700 transition-colors duration-300"
+            >
+              {showPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
+            </button>
           </div>
-          {formErrors.password && (
-            <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>
+          {errors.password && (
+            <p className="mt-1 text-sm text-red-600">{errors.password}</p>
           )}
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center">
+          <label className="flex items-center">
             <input
-              id="remember-me"
-              name="remember-me"
               type="checkbox"
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              className="w-4 h-4 text-blue-600 bg-blue-100 border-blue-300 rounded focus:ring-blue-500 focus:ring-2"
             />
-            <label
-              htmlFor="remember-me"
-              className="ml-2 block text-sm text-gray-900"
-            >
-              Remember me
-            </label>
-          </div>
-
-          <div className="text-sm">
-            <Link
-              href="/forgot-password"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
-            >
-              Forgot your password?
-            </Link>
-          </div>
+            <span className="ml-2 text-sm text-blue-700">Remember me</span>
+          </label>
+          <a
+            href="/forgot-password"
+            className="text-sm text-blue-600 hover:text-blue-800 transition-colors duration-300"
+          >
+            Forgot password?
+          </a>
         </div>
 
-        <div>
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition disabled:opacity-75"
-          >
-            {isLoading ? (
-              <>
-                <FiLoader className="animate-spin mr-2" />
-                Signing in...
-              </>
-            ) : (
-              "Sign in"
-            )}
-          </button>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105"
+        >
+          {isLoading ? (
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              Signing in...
+            </div>
+          ) : (
+            "Sign In"
+          )}
+        </button>
+
+        <div className="text-center pt-4">
+          <p className="text-blue-700">
+            Don't have an account?{" "}
+            <a
+              href="/register"
+              className="text-blue-600 hover:text-blue-800 font-semibold transition-colors duration-300"
+            >
+              Sign up
+            </a>
+          </p>
         </div>
       </form>
-
-      <div className="text-center mt-4">
-        <p className="text-sm text-gray-600">
-          Dont have an account?{" "}
-          <Link
-            href="/register"
-            className="font-medium text-indigo-600 hover:text-indigo-500"
-          >
-            Sign up
-          </Link>
-        </p>
-      </div>
     </div>
   );
-};
-
-export default LoginForm;
+}

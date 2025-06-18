@@ -58,7 +58,8 @@
           "layout.tsx": "file",
           "layout.tsx.bak": "file",
           "login": {
-            "page.tsx": "file"
+            "page.tsx": "file",
+            "page.tsx.bak": "file"
           },
           "page.tsx": "file",
           "page.tsx.bak": "file",
@@ -74,6 +75,7 @@
             "ActivationForm.tsx": "file",
             "ForgotPasswordForm.tsx": "file",
             "LoginForm.tsx": "file",
+            "LoginForm.tsx.bak": "file",
             "RegisterForm.tsx": "file",
             "ResetPasswordForm.tsx": "file"
           },
@@ -100,7 +102,8 @@
           "index.ts": "file"
         }
       }
-    }
+    },
+    "project_analysis.json": "file"
   },
   "metadata": {
     "C:\\Users\\Sayed taqi\\Desktop\\bitlinks\\new_code_engine\\craftapp_code_engine\\projects\\default_user_portfolionew003\\backend\\.env": {
@@ -697,7 +700,7 @@
     "C:\\Users\\Sayed taqi\\Desktop\\bitlinks\\new_code_engine\\craftapp_code_engine\\projects\\default_user_portfolionew003\\frontend\\src\\app\\login\\page.tsx": {
       "path": "C:\\Users\\Sayed taqi\\Desktop\\bitlinks\\new_code_engine\\craftapp_code_engine\\projects\\default_user_portfolionew003\\frontend\\src\\app\\login\\page.tsx",
       "relative_path": "frontend\\src\\app\\login\\page.tsx",
-      "size": 611,
+      "size": 709,
       "type": "frontend_other",
       "imports": [
         "react",
@@ -715,6 +718,16 @@
         "LoginPage",
         "router"
       ],
+      "token_estimate": 73
+    },
+    "C:\\Users\\Sayed taqi\\Desktop\\bitlinks\\new_code_engine\\craftapp_code_engine\\projects\\default_user_portfolionew003\\frontend\\src\\app\\login\\page.tsx.bak": {
+      "path": "C:\\Users\\Sayed taqi\\Desktop\\bitlinks\\new_code_engine\\craftapp_code_engine\\projects\\default_user_portfolionew003\\frontend\\src\\app\\login\\page.tsx.bak",
+      "relative_path": "frontend\\src\\app\\login\\page.tsx.bak",
+      "size": 611,
+      "type": "other",
+      "imports": [],
+      "exports": [],
+      "defines": [],
       "token_estimate": 66
     },
     "C:\\Users\\Sayed taqi\\Desktop\\bitlinks\\new_code_engine\\craftapp_code_engine\\projects\\default_user_portfolionew003\\frontend\\src\\app\\page.tsx": {
@@ -850,27 +863,36 @@
     "C:\\Users\\Sayed taqi\\Desktop\\bitlinks\\new_code_engine\\craftapp_code_engine\\projects\\default_user_portfolionew003\\frontend\\src\\components\\auth\\LoginForm.tsx": {
       "path": "C:\\Users\\Sayed taqi\\Desktop\\bitlinks\\new_code_engine\\craftapp_code_engine\\projects\\default_user_portfolionew003\\frontend\\src\\components\\auth\\LoginForm.tsx",
       "relative_path": "frontend\\src\\components\\auth\\LoginForm.tsx",
-      "size": 6168,
+      "size": 6234,
       "type": "frontend_other",
       "imports": [
         "react",
-        "next/navigation",
-        "next/link",
-        "react-icons/fi",
         "@/hooks/useAuth",
-        "@/types",
-        "@/lib/utils"
+        "react-icons/fi"
       ],
-      "exports": [],
+      "exports": [
+        [
+          "default ",
+          "LoginForm"
+        ]
+      ],
       "defines": [
         "LoginForm",
-        "router",
-        "validateForm",
-        "errors",
         "handleChange",
-        "handleSubmit",
-        "success"
+        "validateForm",
+        "newErrors",
+        "handleSubmit"
       ],
+      "token_estimate": 497
+    },
+    "C:\\Users\\Sayed taqi\\Desktop\\bitlinks\\new_code_engine\\craftapp_code_engine\\projects\\default_user_portfolionew003\\frontend\\src\\components\\auth\\LoginForm.tsx.bak": {
+      "path": "C:\\Users\\Sayed taqi\\Desktop\\bitlinks\\new_code_engine\\craftapp_code_engine\\projects\\default_user_portfolionew003\\frontend\\src\\components\\auth\\LoginForm.tsx.bak",
+      "relative_path": "frontend\\src\\components\\auth\\LoginForm.tsx.bak",
+      "size": 6168,
+      "type": "other",
+      "imports": [],
+      "exports": [],
+      "defines": [],
       "token_estimate": 475
     },
     "C:\\Users\\Sayed taqi\\Desktop\\bitlinks\\new_code_engine\\craftapp_code_engine\\projects\\default_user_portfolionew003\\frontend\\src\\components\\auth\\RegisterForm.tsx": {
@@ -1162,6 +1184,16 @@
       "exports": [],
       "defines": [],
       "token_estimate": 106
+    },
+    "C:\\Users\\Sayed taqi\\Desktop\\bitlinks\\new_code_engine\\craftapp_code_engine\\projects\\default_user_portfolionew003\\project_analysis.json": {
+      "path": "C:\\Users\\Sayed taqi\\Desktop\\bitlinks\\new_code_engine\\craftapp_code_engine\\projects\\default_user_portfolionew003\\project_analysis.json",
+      "relative_path": "project_analysis.json",
+      "size": 43556,
+      "type": "other",
+      "imports": [],
+      "exports": [],
+      "defines": [],
+      "token_estimate": 1870
     }
   },
   "dependencies": {

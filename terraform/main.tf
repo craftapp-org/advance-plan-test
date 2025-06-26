@@ -164,21 +164,46 @@ resource "aws_cloudfront_distribution" "cdn" {
     aws_s3_bucket.s3_bucket,
   ]
 }
+# _____________________Security Groups Configuration____________________
+# Security Group for AppRunner VPC Connector
+resource "aws_security_group" "apprunner_connector_sg" {
+  name        = "${var.project}-apprunner-connector-sg"
+  description = "Security group for AppRunner VPC connector"
+  vpc_id      = var.vpc_id
 
-# _____________________Creating RDS-database____________________
-# Get the default security group for your VPC
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
+  tags = {
+    Name = "${var.project}-apprunner-connector-sg"
+  }
+}
+# Security Group for RDS (allowing both AppRunner and EC2 access)
 resource "aws_security_group" "rds_sg" {
   name        = "${var.project}-rds-sg"
-  description = "Allow PostgreSQL access from EC2"
-  vpc_id      = var.vpc_id  # Replace with your actual VPC ID
+  description = "Allow PostgreSQL access from AppRunner and EC2"
+  vpc_id      = var.vpc_id
 
+  # Rule for AppRunner VPC Connector
   ingress {
-    from_port                = 5432
-    to_port                  = 5432
-    protocol                 = "tcp"
-    security_groups          = [var.ec2_security_group_id]  # Allow only from EC2
-    description              = "PostgreSQL access from EC2"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.apprunner_connector_sg.id]
+    description     = "PostgreSQL access from AppRunner"
+  }
+
+  # Rule for EC2 instance (backups)
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [var.ec2_security_group_id]
+    description     = "PostgreSQL access from EC2 backup instance"
   }
 
   egress {
@@ -188,12 +213,12 @@ resource "aws_security_group" "rds_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
- tags = {
-  Name = "${var.project}-rds-sg"
+  tags = {
+    Name = "${var.project}-rds-sg"
+  }
 }
 
-}
-
+# _____________________RDS Database Configuration____________________
 resource "aws_db_instance" "my_database" {
   identifier             = "${var.project}-${var.region}-database-${random_id.bucket_suffix.hex}"
   engine                 = "postgres"
@@ -207,9 +232,10 @@ resource "aws_db_instance" "my_database" {
   password               = var.db_password
   parameter_group_name   = "default.postgres15"
   skip_final_snapshot    = true
-  publicly_accessible    = true # Changed to true for public access
+  publicly_accessible    = false  # Changed to false for security
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
   multi_az               = false
+  
   tags = {
     Name = "${var.project}-database-${random_id.bucket_suffix.hex}"
   }
@@ -288,9 +314,26 @@ resource "aws_iam_role_policy_attachment" "apprunner_s3_access" {
   policy_arn = aws_iam_policy.backend_s3_access.arn
 }
 
-# _____________________Creating AppRunner Service___________________
+# _____________________AppRunner VPC Connector____________________
+resource "aws_apprunner_vpc_connector" "backend_connector" {
+  vpc_connector_name = "${var.project}-connector"
+  subnets            = var.private_subnet_ids
+  security_groups    = [aws_security_group.apprunner_connector_sg.id]  # Use the dedicated SG
+}
+
+# _____________________AppRunner Service____________________
 resource "aws_apprunner_service" "backend_service" {
   service_name = "${var.project}-backend-${random_id.bucket_suffix.hex}"
+  
+  network_configuration {
+    ingress_configuration {
+      is_publicly_accessible = true
+    }
+    egress_configuration {
+      egress_type       = "VPC"
+      vpc_connector_arn = aws_apprunner_vpc_connector.backend_connector.arn
+    }
+  }
 
   source_configuration {
     authentication_configuration {
@@ -334,6 +377,7 @@ resource "aws_apprunner_service" "backend_service" {
       }
     }
   }
+}
 
   instance_configuration {
     cpu               = "1024"

@@ -377,7 +377,6 @@ resource "aws_apprunner_service" "backend_service" {
       }
     }
   }
-}
 
   instance_configuration {
     cpu               = "1024"

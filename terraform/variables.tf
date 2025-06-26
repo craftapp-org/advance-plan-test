@@ -25,7 +25,7 @@ variable "app_runner_connection_arn" {
 variable "private_subnet_ids" {
   description = "List of private subnet IDs for secure resources (RDS, AppRunner)"
   type        = list(string)
-  default     = ["subnet-02fe7cd254545eb15", "subnet-0da5a520e65e987ea", "subnet-085e7a26f21079a2e", "subnet-02ae8822f384a7697", "subnet-053716f4ebdb38ece", "subnet-0fa8ce2ba22b06e57"]  # Replace with your private subnets
+  default     = ["subnet-0da5a520e65e987ea", "subnet-085e7a26f21079a2e", "subnet-02ae8822f384a7697", "subnet-053716f4ebdb38ece", "subnet-0fa8ce2ba22b06e57"]  # Replace with your private subnets
 }
 
 variable "aws_security_group_id" {
